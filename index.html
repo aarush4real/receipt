@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Clinic Supply – Receipt Generator</title>
+<title>MediCure – Receipt Generator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -44,7 +44,21 @@
     border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
   }
-  .logo-icon svg { width: 22px; height: 22px; stroke: #fff; fill: none; }
+  /* MediCure plus/cross icon */
+  .plus-icon {
+    width: 22px; height: 22px;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .plus-icon::before, .plus-icon::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+    border-radius: 2px;
+  }
+  .plus-icon::before { width: 14px; height: 4px; }
+  .plus-icon::after  { width: 4px;  height: 14px; }
+
   .logo-text { line-height: 1.2; }
   .logo-text span { display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
   .logo-text h1 { font-size: 22px; font-weight: 700; color: var(--text); }
@@ -207,11 +221,56 @@
     min-height: 500px;
   }
 
+  /* MediCure banner on top of receipt */
+  .receipt-medicure-banner {
+    background: var(--green);
+    border-radius: 8px 8px 0 0;
+    margin: -36px -40px 28px -40px;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .receipt-medicure-banner .banner-plus {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .receipt-medicure-banner .banner-plus::before,
+  .receipt-medicure-banner .banner-plus::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+    border-radius: 2px;
+  }
+  .receipt-medicure-banner .banner-plus {
+    position: relative;
+  }
+  .receipt-medicure-banner .banner-plus::before { width: 18px; height: 5px; }
+  .receipt-medicure-banner .banner-plus::after  { width: 5px;  height: 18px; }
+  .receipt-medicure-banner .banner-text {
+    display: flex; flex-direction: column; line-height: 1.2;
+  }
+  .receipt-medicure-banner .banner-text .banner-sub {
+    font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+  .receipt-medicure-banner .banner-text .banner-name {
+    font-size: 20px; font-weight: 800; color: #fff; letter-spacing: .01em;
+  }
+  .receipt-medicure-banner .banner-right {
+    margin-left: auto; text-align: right; color: rgba(255,255,255,0.85); font-size: 12px;
+    line-height: 1.8;
+  }
+  .receipt-medicure-banner .banner-right b { font-size: 13px; color: #fff; }
+
   .receipt-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 32px;
+    margin-bottom: 28px;
   }
   .receipt-logo {
     display: flex; align-items: center; gap: 12px;
@@ -221,8 +280,18 @@
     background: var(--green);
     border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
+    position: relative;
   }
-  .receipt-logo-icon svg { width: 22px; height: 22px; stroke: #fff; fill: none; }
+  .receipt-logo-icon::before,
+  .receipt-logo-icon::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+    border-radius: 2px;
+  }
+  .receipt-logo-icon::before { width: 20px; height: 6px; }
+  .receipt-logo-icon::after  { width: 6px;  height: 20px; }
+
   .receipt-brand { line-height: 1.2; }
   .receipt-brand span { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
   .receipt-brand h2 { font-size: 20px; font-weight: 800; color: var(--text); }
@@ -307,6 +376,7 @@
       gap: 20px;
     }
     #receipt-preview { padding: 24px 20px; }
+    .receipt-medicure-banner { margin: -24px -20px 24px -20px; padding: 12px 20px; }
     .actions, .actions-row2 { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 480px) {
@@ -320,12 +390,10 @@
 <!-- Header -->
 <header>
   <div class="logo-icon">
-    <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-    </svg>
+    <div class="plus-icon"></div>
   </div>
   <div class="logo-text">
-    <span>Clinic Supply</span>
+    <span>MediCure</span>
     <h1>Receipt Generator</h1>
   </div>
   <p class="header-hint">Fill the details on the left. Your receipt preview updates live on the right. Save or share when ready.</p>
@@ -351,12 +419,6 @@
 
     <div class="field-label">Clinic Name</div>
     <input type="text" id="inp-clinic" placeholder="e.g. Greenleaf Family Clinic" oninput="update()" />
-
-    <div class="field-label">Doctor / Issued By</div>
-    <input type="text" id="inp-doctor" placeholder="e.g. Dr. Priya Sharma" oninput="update()" />
-
-    <div class="field-label">Patient Name</div>
-    <input type="text" id="inp-patient" placeholder="e.g. Rajesh Kumar" oninput="update()" />
 
     <div class="field-label">Receipt Number</div>
     <input type="text" id="inp-receipt-no" oninput="update()" />
@@ -399,30 +461,20 @@
   <!-- Right: Preview -->
   <div class="preview-wrap">
     <div id="receipt-preview">
-      <div class="receipt-header">
-        <div class="receipt-logo">
-          <div class="receipt-logo-icon">
-            <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-            </svg>
-          </div>
-          <div class="receipt-brand">
-            <span>Clinic Supply Receipt</span>
-            <h2 id="r-clinic">Your Clinic Name</h2>
-          </div>
-        </div>
-        <div class="receipt-meta">
-          <div class="meta-label">Receipt No.</div>
-          <div class="meta-value" id="r-no">—</div>
-          <div class="meta-label" style="margin-top:8px">Date</div>
-          <div class="meta-value" id="r-date">—</div>
-        </div>
-      </div>
 
-      <!-- Patient / Doctor info -->
-      <div id="r-info-block" style="margin-bottom:20px; display:none; gap:32px; font-size:13px; color:#555;">
-        <span id="r-patient-row"></span>
-        <span id="r-doctor-row"></span>
+      <!-- MediCure top banner -->
+      <div class="receipt-medicure-banner">
+        <div class="banner-plus"></div>
+        <div class="banner-text">
+          <span class="banner-sub">MediCure</span>
+          <span class="banner-name" id="r-clinic">Your Clinic Name</span>
+        </div>
+        <div class="banner-right">
+          <div><span style="opacity:.7;font-size:10px;letter-spacing:.1em;text-transform:uppercase">Receipt No.</span></div>
+          <div><b id="r-no">—</b></div>
+          <div><span style="opacity:.7;font-size:10px;letter-spacing:.1em;text-transform:uppercase">Date</span></div>
+          <div><b id="r-date">—</b></div>
+        </div>
       </div>
 
       <table class="receipt-table">
@@ -453,7 +505,7 @@
 
       <div class="receipt-footer">
         <span>Thank you for your purchase. Please keep this receipt for your records.</span>
-        <span class="issued" id="r-issued">Issued by Clinic Supply</span>
+        <span class="issued">Issued by MediCure</span>
       </div>
     </div>
   </div>
@@ -519,30 +571,13 @@ function delRow(i) {
 
 // ── Update preview ──
 function update() {
-  const clinic = document.getElementById('inp-clinic').value.trim() || 'Your Clinic Name';
-  const recNo  = document.getElementById('inp-receipt-no').value.trim() || '—';
+  const clinic  = document.getElementById('inp-clinic').value.trim() || 'Your Clinic Name';
+  const recNo   = document.getElementById('inp-receipt-no').value.trim() || '—';
   const rawDate = document.getElementById('inp-date').value;
-  const patient = document.getElementById('inp-patient').value.trim();
-  const doctor  = document.getElementById('inp-doctor').value.trim();
 
   document.getElementById('r-clinic').textContent = clinic;
   document.getElementById('r-no').textContent = recNo;
   document.getElementById('r-date').textContent = rawDate ? formatDate(rawDate) : '—';
-
-  // patient/doctor info bar
-  const infoBlock = document.getElementById('r-info-block');
-  if (patient || doctor) {
-    infoBlock.style.display = 'flex';
-    document.getElementById('r-patient-row').textContent = patient ? `Patient: ${patient}` : '';
-    document.getElementById('r-doctor-row').textContent  = doctor  ? `Doctor: ${doctor}` : '';
-  } else {
-    infoBlock.style.display = 'none';
-  }
-
-  // issued by
-  document.getElementById('r-issued').textContent = doctor
-    ? `Issued by ${doctor}`
-    : 'Issued by Clinic Supply';
 
   // build table rows
   const validRows = rows.filter(r => r.name || r.qty || r.rate);
@@ -574,16 +609,12 @@ function update() {
 // ── Reset ──
 function resetForm() {
   document.getElementById('inp-clinic').value = '';
-  document.getElementById('inp-doctor').value = '';
-  document.getElementById('inp-patient').value = '';
   rows = [{ id: Date.now(), name:'', qty:0, rate:0 }];
   init();
 }
 
 // ── Print ──
-function printReceipt() {
-  window.print();
-}
+function printReceipt() { window.print(); }
 
 // ── Save as Image ──
 async function saveAsImage() {
@@ -633,13 +664,12 @@ async function shareReceipt() {
       const clinic = document.getElementById('inp-clinic').value.trim() || 'receipt';
       const file = new File([blob], `${clinic}_receipt.png`, { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ title: 'Receipt', files: [file] });
+        await navigator.share({ title: 'MediCure Receipt', files: [file] });
         showToast('Shared!');
       } else if (navigator.share) {
-        await navigator.share({ title: 'Clinic Receipt', text: `Receipt from ${clinic}` });
+        await navigator.share({ title: 'MediCure Receipt', text: `Receipt from ${clinic}` });
         showToast('Shared!');
       } else {
-        // fallback: copy image to clipboard
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
         showToast('Image copied to clipboard!');
       }
@@ -668,7 +698,7 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// Print styles injected
+// Print styles
 const ps = document.createElement('style');
 ps.media = 'print';
 ps.textContent = `
